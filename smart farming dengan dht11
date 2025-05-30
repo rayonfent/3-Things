@@ -1,0 +1,40 @@
+#include <DHT.h>
+
+#define DHTPIN 2
+#define DHTTYPE DHT11
+
+#define LED_MERAH 8  // Indikator suhu tinggi
+#define LED_BIRU 9   // Indikator perlu penyiraman (berdasarkan kelembaban)
+
+DHT dht(DHTPIN, DHTTYPE);
+
+void setup() {
+  pinMode(LED_MERAH, OUTPUT);
+  pinMode(LED_BIRU, OUTPUT);
+  Serial.begin(9600);
+  dht.begin();
+}
+
+void loop() {
+  float suhu = dht.readTemperature();
+  float kelembaban = dht.readHumidity();
+
+  Serial.print("Suhu: "); Serial.print(suhu); Serial.print(" °C");
+  Serial.print(" | Kelembaban: "); Serial.print(kelembaban); Serial.println(" %");
+
+  // Indikator suhu tinggi
+  if (suhu > 32) {
+    digitalWrite(LED_MERAH, HIGH);
+  } else {
+    digitalWrite(LED_MERAH, LOW);
+  }
+
+  // Indikator perlu penyiraman (kelembaban < 40% dan suhu panas)
+  if (suhu > 33 && kelembaban < 40) {
+    digitalWrite(LED_BIRU, HIGH);
+  } else {
+    digitalWrite(LED_BIRU, LOW);
+  }
+
+  delay(2000);
+}
