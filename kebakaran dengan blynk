@@ -1,0 +1,46 @@
+#define BLYNK_TEMPLATE_ID "MASUKKAN_TEMPLATE_ID"
+#define BLYNK_TEMPLATE_NAME "KebakaranIoT"
+#define BLYNK_AUTH_TOKEN "MASUKKAN_AUTH_TOKEN"
+
+#include <ESP8266WiFi.h>
+#include <BlynkSimpleEsp8266.h>
+#include <DHT.h>
+
+#define DHTPIN 2
+#define DHTTYPE DHT11
+#define GAS_SENSOR A0
+#define BUZZER 8
+
+char ssid[] = "NAMA_WIFI";
+char pass[] = "PASSWORD_WIFI";
+
+DHT dht(DHTPIN, DHTTYPE);
+BlynkTimer timer;
+
+void kirimDataKeBlynk() {
+  float suhu = dht.readTemperature();
+  int gas = analogRead(GAS_SENSOR);
+
+  Blynk.virtualWrite(V0, suhu);
+  Blynk.virtualWrite(V1, gas);
+
+  if (suhu > 50 || gas > 400) {
+    digitalWrite(BUZZER, HIGH);
+    Blynk.logEvent("kebakaran", "🔥 Bahaya! Potensi kebakaran terdeteksi!");
+  } else {
+    digitalWrite(BUZZER, LOW);
+  }
+}
+
+void setup() {
+  pinMode(BUZZER, OUTPUT);
+  Serial.begin(9600);
+  dht.begin();
+  Blynk.begin(BLYNK_AUTH_TOKEN, ssid, pass);
+  timer.setInterval(2000L, kirimDataKeBlynk);
+}
+
+void loop() {
+  Blynk.run();
+  timer.run();
+}
