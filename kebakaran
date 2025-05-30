@@ -1,0 +1,30 @@
+#include <DHT.h>
+
+#define DHTPIN 2
+#define DHTTYPE DHT11
+#define MQ2 A0
+#define BUZZER 8
+
+DHT dht(DHTPIN, DHTTYPE);
+
+void setup() {
+  pinMode(BUZZER, OUTPUT);
+  Serial.begin(9600);
+  dht.begin();
+}
+
+void loop() {
+  float suhu = dht.readTemperature();
+  int gas = analogRead(MQ2);
+
+  Serial.print("Suhu: "); Serial.print(suhu);
+  Serial.print("°C | Gas: "); Serial.println(gas);
+
+  if (suhu > 50 || gas > 400) {
+    digitalWrite(BUZZER, HIGH);
+  } else {
+    digitalWrite(BUZZER, LOW);
+  }
+
+  delay(1000);
+}
